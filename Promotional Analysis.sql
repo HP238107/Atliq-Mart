@@ -38,6 +38,16 @@ from cte as c join dim_campaigns as d  on c.campaign_id=d.campaign_id;
 
 
 
+with cte as
+(select c.campaign_name,p.category, round(sum((((f.`quantity_sold(after_promo)` - f.`quantity_sold(before_promo)`)
+/ `quantity_sold(before_promo)`)*100)),2) as ISU
+ from dim_products as p join fact_events as f on
+p.product_code=f.product_code left join dim_campaigns as c on f.campaign_id=c.campaign_id 
+where c.campaign_name="Diwali" group by p.category)
+select *,dense_rank() over(order by cte.ISU desc) rank_
+ from cte;
+
+
  
  
  with ir as
